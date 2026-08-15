@@ -49,18 +49,3 @@ http://localhost:3000 を開きます。撮影用デモは http://localhost:3000
 | R | 初期状態へ戻る |
 | F | 今後の機能 |
 | Escape | モーダルを閉じる |
-
-## GitHub Pages への公開
-
-1. 静的ビルドします。
-
-```powershell
-cd D:\shizumichi
-$env:GITHUB_PAGES="true"; $env:NEXT_PUBLIC_BASE_PATH="/shizumichi"; npm run build
-```
-
-2. 生成された `out` を GitHub Pages の公開ディレクトリに置きます（`gh-pages` ブランチ、またはリポジトリ設定の `/docs`）。
-3. Pages の Source をそのブランチ / `docs` フォルダに合わせます。
-4. 公開URL例: `https://2ufkpfb9daxnik.github.io/shizumichi/?demo=1`
-
-ローカル確認だけなら `GITHUB_PAGES` は不要です。`npm run build` のあと `npx serve out` で静的ファイルを確認できます。
