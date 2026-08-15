@@ -28,6 +28,27 @@ npm run dev
 
 http://localhost:3000 を開きます。撮影用デモは http://localhost:3000/?demo=1 です。
 
+## GitHub Pages で公開する
+
+Actions は使いません。`main` ブランチの `/docs` フォルダを公開します。
+
+```bash
+npm run build:pages
+```
+
+できた `docs/` をコミットして `main` にプッシュしたあと、リポジトリの **Settings → Pages** で次を選びます。
+
+- Source: Deploy from a branch
+- Branch: `main`
+- Folder: `/docs`
+
+公開後のアプリはここです。
+
+- アプリ: https://2ufkpfb9daxnik.github.io/shizumichi/
+- 撮影用デモ: https://2ufkpfb9daxnik.github.io/shizumichi/?demo=1
+
+`(root)` だと README が表示されます。`/docs` を選んでください。フォルダがまだ無いと GitHub がエラーを出します。
+
 Service Worker は本番ビルド（GitHub Pages）でのみ登録します。
 
 ## ホーム画面に追加（PWA）

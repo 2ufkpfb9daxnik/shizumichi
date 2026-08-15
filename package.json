@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build:pages": "next build"
+    "build:pages": "node scripts/build-pages.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
