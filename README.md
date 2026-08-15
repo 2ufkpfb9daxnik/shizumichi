@@ -14,6 +14,7 @@
 | 地図 | Leaflet + react-leaflet + OpenStreetMap |
 | 経路 | 固定のデモデータ（実在道路に沿った座標） |
 | 公開 | 静的エクスポート（GitHub Pages向け、APIキー不要） |
+| 配布 | PWA（ホーム画面追加。地図タイルはオンラインが必要） |
 
 バックエンド、経路探索API、位置情報、マイクは使いません。
 
@@ -26,6 +27,17 @@ npm run dev
 ```
 
 http://localhost:3000 を開きます。撮影用デモは http://localhost:3000/?demo=1 です。
+
+Service Worker は本番ビルド（GitHub Pages）でのみ登録します。
+
+## ホーム画面に追加（PWA）
+
+GitHub Pages は HTTPS のため、公開後はインストールできます。地図タイル（OpenStreetMap）はオンラインが必要です。
+
+| 環境 | 手順 |
+|---|---|
+| Android（Chrome） | メニュー → 「アプリをインストール」または「ホーム画面に追加」 |
+| iPhone / iPad（Safari） | 共有 → 「ホーム画面に追加」 |
 
 ## デモの舞台
 

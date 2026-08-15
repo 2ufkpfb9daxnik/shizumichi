@@ -1,0 +1,35 @@
+{
+  "id": "./",
+  "name": "しずみち — 音との距離を選べるルート案内",
+  "short_name": "しずみち",
+  "description": "聴覚過敏のある人が、最短・バランス・静音の3経路から目的地までの歩き方を選べる試作アプリ",
+  "lang": "ja",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f4c43",
+  "categories": ["navigation", "travel"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
