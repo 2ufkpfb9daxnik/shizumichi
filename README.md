@@ -1,0 +1,66 @@
+# しずみち
+
+音との距離を選べるルート案内（授業発表動画向けプロトタイプ）
+
+聴覚過敏があり、とくに夏の蝉の音を避けたい利用者が、自宅から市立ひだまり図書館までの **最短 / バランス / 静音** の3経路を比較できます。
+
+提案検証用の画面です。目的地・経路評価・騒音情報はサンプルデータです。
+
+## 技術
+
+| 層 | 採用 |
+|---|---|
+| フロントエンド | Next.js（App Router）+ React + TypeScript + Tailwind |
+| 地図 | Leaflet + react-leaflet + OpenStreetMap |
+| 経路 | 固定のデモデータ（実在道路に沿った座標） |
+| 公開 | 静的エクスポート（GitHub Pages向け、APIキー不要） |
+
+バックエンド、経路探索API、位置情報、マイクは使いません。
+
+## セットアップ
+
+```bash
+cd D:\shizumichi
+npm install
+npm run dev
+```
+
+http://localhost:3000 を開きます。撮影用デモは http://localhost:3000/?demo=1 です。
+
+## デモの舞台
+
+地図は東京都杉並区・蚕糸の森公園周辺の実在道路を使っています。
+
+- 自宅・市立ひだまり図書館は架空のデモ地点です
+- 最短：公園沿い
+- バランス：環七通り・青梅街道側
+- 静音：住宅街側
+
+## 撮影用ショートカット（?demo=1）
+
+入力欄にフォーカスしているときは無効です。
+
+| キー | 動作 |
+|---|---|
+| 1 | 最短 |
+| 2 | バランス |
+| 3 | 静音 |
+| Enter | 検索 / 案内開始 |
+| R | 初期状態へ戻る |
+| F | 今後の機能 |
+| Escape | モーダルを閉じる |
+
+## GitHub Pages への公開
+
+1. 静的ビルドします。
+
+```powershell
+cd D:\shizumichi
+$env:GITHUB_PAGES="true"; $env:NEXT_PUBLIC_BASE_PATH="/shizumichi"; npm run build
+```
+
+2. 生成された `out` を GitHub Pages の公開ディレクトリに置きます（`gh-pages` ブランチ、またはリポジトリ設定の `/docs`）。
+3. Pages の Source をそのブランチ / `docs` フォルダに合わせます。
+4. 公開URL例: `https://2ufkpfb9daxnik.github.io/shizumichi/?demo=1`
+
+ローカル確認だけなら `GITHUB_PAGES` は不要です。`npm run build` のあと `npx serve out` で静的ファイルを確認できます。
