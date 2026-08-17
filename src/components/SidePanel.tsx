@@ -1,6 +1,7 @@
 "use client";
 
 import type { AppPhase, DemoRoute, RouteId, Sensitivity, SoundType } from "@/lib/types";
+import NoiseRecorder from "@/components/NoiseRecorder";
 import {
   HOME,
   QUIETNESS_LABEL,
@@ -213,6 +214,8 @@ export default function SidePanel({
           >
             経路を検索
           </button>
+
+          <NoiseRecorder compact />
         </>
       )}
 
@@ -299,6 +302,8 @@ export default function SidePanel({
               >
                 別のルートを見る
               </button>
+
+              <NoiseRecorder routeName={selected.name} progress={progress} />
             </section>
           )}
 
