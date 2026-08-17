@@ -33,6 +33,7 @@ type Props = {
   showEarNotice: boolean;
   destination: string;
   onDestinationChange: (value: string) => void;
+  onNoiseRecordingChange: (recording: boolean) => void;
 };
 
 function RouteCard({
@@ -114,6 +115,7 @@ export default function SidePanel({
   showEarNotice,
   destination,
   onDestinationChange,
+  onNoiseRecordingChange,
 }: Props) {
   const selected = routes.find((r) => r.id === selectedId) ?? routes[2];
 
@@ -215,7 +217,7 @@ export default function SidePanel({
             経路を検索
           </button>
 
-          <NoiseRecorder compact />
+          <NoiseRecorder compact onRecordingChange={onNoiseRecordingChange} />
         </>
       )}
 
@@ -303,7 +305,11 @@ export default function SidePanel({
                 別のルートを見る
               </button>
 
-              <NoiseRecorder routeName={selected.name} progress={progress} />
+              <NoiseRecorder
+                routeName={selected.name}
+                progress={progress}
+                onRecordingChange={onNoiseRecordingChange}
+              />
             </section>
           )}
 

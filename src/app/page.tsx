@@ -50,8 +50,12 @@ export default function HomePage() {
   const [traveler, setTraveler] = useState<LatLng | null>(null);
   const [destination, setDestination] = useState("");
   const [earDismissed, setEarDismissed] = useState(false);
+  const [isNoiseRecording, setIsNoiseRecording] = useState(false);
   const searchTimer = useRef<number | null>(null);
   const navFrame = useRef<number | null>(null);
+  const recordFrame = useRef<number | null>(null);
+  const noiseRecordingRef = useRef(false);
+  const recordStartProgress = useRef(0);
 
   const selected = useMemo(() => getRoute(selectedId), [selectedId]);
 
@@ -67,8 +71,18 @@ export default function HomePage() {
     }
   }, []);
 
+  const stopRecordingAnim = useCallback(() => {
+    if (recordFrame.current != null) {
+      cancelAnimationFrame(recordFrame.current);
+      recordFrame.current = null;
+    }
+  }, []);
+
   const resetApp = useCallback(() => {
     stopNav();
+    stopRecordingAnim();
+    noiseRecordingRef.current = false;
+    setIsNoiseRecording(false);
     if (searchTimer.current != null) {
       window.clearTimeout(searchTimer.current);
       searchTimer.current = null;
@@ -82,7 +96,48 @@ export default function HomePage() {
     setTraveler(null);
     setEarDismissed(false);
     setDestination("");
-  }, [stopNav]);
+  }, [stopNav, stopRecordingAnim]);
+
+  const handleNoiseRecordingChange = useCallback(
+    (recording: boolean) => {
+      noiseRecordingRef.current = recording;
+      setIsNoiseRecording(recording);
+
+      if (!recording) {
+        stopRecordingAnim();
+        if (phase !== "navigate" && phase !== "arrived") {
+          setTraveler(null);
+        }
+        return;
+      }
+
+      if (phase === "navigate") {
+        stopNav();
+      }
+
+      const route = getRoute(selectedId);
+      const onPath = phase === "navigate" || phase === "arrived";
+      const startP = onPath ? progress : 0;
+      recordStartProgress.current = startP;
+      setTraveler(pointAlongPath(route.path, startP));
+
+      const started = performance.now();
+      const duration = prefersReducedMotion() ? 8000 : 22000;
+      const targetP = Math.min(0.92, startP + 0.55);
+
+      const tick = (now: number) => {
+        if (!noiseRecordingRef.current) return;
+        const t = Math.min(1, (now - started) / duration);
+        const p = startP + (targetP - startP) * t;
+        setTraveler(pointAlongPath(route.path, p));
+        if (t < 1 && noiseRecordingRef.current) {
+          recordFrame.current = requestAnimationFrame(tick);
+        }
+      };
+      recordFrame.current = requestAnimationFrame(tick);
+    },
+    [phase, progress, selectedId, stopNav, stopRecordingAnim]
+  );
 
   const pendingRoute = useRef<RouteId>("quiet");
 
@@ -138,9 +193,10 @@ export default function HomePage() {
   useEffect(() => {
     return () => {
       stopNav();
+      stopRecordingAnim();
       if (searchTimer.current != null) window.clearTimeout(searchTimer.current);
     };
-  }, [stopNav]);
+  }, [stopNav, stopRecordingAnim]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -216,6 +272,7 @@ export default function HomePage() {
             phase={phase}
             traveler={traveler}
             demo={demo}
+            isNoiseRecording={isNoiseRecording}
           />
           <div className="pointer-events-none absolute bottom-2 left-2 z-[500] max-w-[min(94%,18rem)] rounded-md bg-white/90 px-2 py-1.5 text-[10px] leading-snug text-slate-700 shadow-sm sm:bottom-8 sm:left-3 sm:max-w-[min(92%,22rem)] sm:rounded-lg sm:px-2.5 sm:py-2 sm:text-[11px]">
             {phase !== "idle" && phase !== "searching" && (
@@ -269,6 +326,7 @@ export default function HomePage() {
           showEarNotice={showEarNotice}
           destination={destination}
           onDestinationChange={setDestination}
+          onNoiseRecordingChange={handleNoiseRecordingChange}
         />
       </div>
 

@@ -86,10 +86,21 @@ type Props = {
   phase: AppPhase;
   traveler: LatLng | null;
   demo: boolean;
+  isNoiseRecording: boolean;
 };
 
-export default function MapView({ routes, selectedId, phase, traveler, demo }: Props) {
-  const showRoutes = phase !== "idle" && phase !== "searching";
+export default function MapView({
+  routes,
+  selectedId,
+  phase,
+  traveler,
+  demo,
+  isNoiseRecording,
+}: Props) {
+  const showRoutes = phase !== "idle" && phase !== "searching" || isNoiseRecording;
+  const showTraveler =
+    traveler &&
+    (isNoiseRecording || phase === "navigate" || phase === "arrived");
 
   return (
     <MapContainer
@@ -181,9 +192,9 @@ export default function MapView({ routes, selectedId, phase, traveler, demo }: P
           </CircleMarker>
         ))}
 
-      {traveler && (phase === "navigate" || phase === "arrived") && (
+      {showTraveler && (
         <Marker position={[traveler.lat, traveler.lng]} icon={youIcon()} zIndexOffset={800}>
-          <Popup>現在地（デモ）</Popup>
+          <Popup>{isNoiseRecording ? "現在地（記録中）" : "現在地（デモ）"}</Popup>
         </Marker>
       )}
     </MapContainer>

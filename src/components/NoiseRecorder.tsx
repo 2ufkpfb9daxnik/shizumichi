@@ -7,6 +7,7 @@ type Props = {
   routeName?: string;
   progress?: number;
   compact?: boolean;
+  onRecordingChange?: (recording: boolean) => void;
 };
 
 function formatSec(sec: number): string {
@@ -43,7 +44,12 @@ function WaveformBars({
   );
 }
 
-export default function NoiseRecorder({ routeName, progress, compact = false }: Props) {
+export default function NoiseRecorder({
+  routeName,
+  progress,
+  compact = false,
+  onRecordingChange,
+}: Props) {
   const [isRecording, setIsRecording] = useState(false);
   const [isSimulated, setIsSimulated] = useState(false);
   const [level, setLevel] = useState(0);
@@ -56,8 +62,18 @@ export default function NoiseRecorder({ routeName, progress, compact = false }: 
     return () => {
       sessionRef.current?.stop();
       urlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      onRecordingChange?.(false);
     };
-  }, []);
+  }, [onRecordingChange]);
+
+  const finishRecording = useCallback(() => {
+    setIsRecording(false);
+    setIsSimulated(false);
+    setLevel(0);
+    setLiveBars(Array(28).fill(0.12));
+    sessionRef.current = null;
+    onRecordingChange?.(false);
+  }, [onRecordingChange]);
 
   const start = useCallback(async () => {
     const session = new NoiseRecorderSession();
@@ -65,6 +81,7 @@ export default function NoiseRecorder({ routeName, progress, compact = false }: 
     setIsRecording(true);
     setLevel(0);
     setLiveBars(Array(28).fill(0.12));
+    onRecordingChange?.(true);
 
     const usedMic = await session.start(
       { routeName, progress },
@@ -73,15 +90,11 @@ export default function NoiseRecorder({ routeName, progress, compact = false }: 
       (recording) => {
         if (recording.url) urlsRef.current.push(recording.url);
         setRecordings((prev) => [recording, ...prev].slice(0, 5));
-        setIsRecording(false);
-        setIsSimulated(false);
-        setLevel(0);
-        setLiveBars(Array(28).fill(0.12));
-        sessionRef.current = null;
+        finishRecording();
       }
     );
     setIsSimulated(!usedMic);
-  }, [routeName, progress]);
+  }, [routeName, progress, onRecordingChange, finishRecording]);
 
   const stop = useCallback(() => {
     sessionRef.current?.stop();
