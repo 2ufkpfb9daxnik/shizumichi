@@ -18,7 +18,6 @@ import {
   LIBRARY,
   MAP_CENTER,
   MAP_ZOOM,
-  RECORDING_DEMO_PATH,
   SENSORS,
 } from "@/lib/demo/data";
 
@@ -81,6 +80,31 @@ function SetupMap({ demo }: { demo: boolean }) {
   return null;
 }
 
+/** 記録中、現在地が画面端に寄ったら地図を追従させる */
+function FollowTraveler({ traveler, active }: { traveler: LatLng | null; active: boolean }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!active || !traveler) return;
+
+    const point = map.latLngToContainerPoint([traveler.lat, traveler.lng]);
+    const size = map.getSize();
+    const marginX = size.x * 0.3;
+    const marginY = size.y * 0.3;
+    const nearEdge =
+      point.x < marginX ||
+      point.x > size.x - marginX ||
+      point.y < marginY ||
+      point.y > size.y - marginY;
+
+    if (nearEdge) {
+      map.panTo([traveler.lat, traveler.lng], { animate: true, duration: 0.4 });
+    }
+  }, [map, traveler, active]);
+
+  return null;
+}
+
 type Props = {
   routes: DemoRoute[];
   selectedId: RouteId;
@@ -99,10 +123,8 @@ export default function MapView({
   isNoiseRecording,
 }: Props) {
   const showRoutes = phase !== "idle" && phase !== "searching" && !isNoiseRecording;
-  const recordingPositions = RECORDING_DEMO_PATH.map((p) => [p.lat, p.lng] as [number, number]);
   const showTraveler =
-    traveler &&
-    (isNoiseRecording || phase === "navigate" || phase === "arrived");
+    traveler && (isNoiseRecording || phase === "navigate" || phase === "arrived");
 
   return (
     <MapContainer
@@ -114,6 +136,7 @@ export default function MapView({
       keyboard={true}
     >
       <SetupMap demo={demo} />
+      <FollowTraveler traveler={traveler} active={isNoiseRecording} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -157,42 +180,6 @@ export default function MapView({
           );
         })}
 
-      {isNoiseRecording && (
-        <>
-          <Polyline
-            pane="routeFront"
-            positions={recordingPositions}
-            pathOptions={{
-              color: "#ffffff",
-              weight: 12,
-              opacity: 1,
-              lineJoin: "round",
-              lineCap: "round",
-            }}
-          />
-          <Polyline
-            pane="routeFront"
-            positions={recordingPositions}
-            pathOptions={{
-              color: "#5b6ee1",
-              weight: 7,
-              opacity: 0.95,
-              dashArray: "10, 8",
-              lineJoin: "round",
-              lineCap: "round",
-            }}
-          />
-          <Marker
-            position={[
-              RECORDING_DEMO_PATH[Math.floor(RECORDING_DEMO_PATH.length * 0.4)].lat,
-              RECORDING_DEMO_PATH[Math.floor(RECORDING_DEMO_PATH.length * 0.4)].lng,
-            ]}
-            icon={routeLabelIcon("記録ルート", "#5b6ee1")}
-            interactive={false}
-          />
-        </>
-      )}
-
       <Marker position={[HOME.lat, HOME.lng]} icon={placeIcon("home")}>
         <Popup>{HOME.name}</Popup>
       </Marker>
@@ -232,7 +219,7 @@ export default function MapView({
 
       {showTraveler && (
         <Marker position={[traveler.lat, traveler.lng]} icon={youIcon()} zIndexOffset={800}>
-          <Popup>{isNoiseRecording ? "現在地（記録中）" : "現在地（デモ）"}</Popup>
+          <Popup>現在地</Popup>
         </Marker>
       )}
     </MapContainer>

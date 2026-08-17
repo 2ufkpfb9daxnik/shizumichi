@@ -118,17 +118,16 @@ export default function HomePage() {
       setTraveler(pointAlongPath(RECORDING_DEMO_PATH, 0));
 
       const started = performance.now();
-      const duration = prefersReducedMotion() ? 8000 : 22000;
-      const targetP = 0.92;
+      const wanderSpeed = prefersReducedMotion() ? 0.025 : 0.018;
 
       const tick = (now: number) => {
         if (!noiseRecordingRef.current) return;
-        const t = Math.min(1, (now - started) / duration);
-        const p = targetP * t;
+        const elapsed = (now - started) / 1000;
+        const loop = (elapsed * wanderSpeed) % 2;
+        const along = loop <= 1 ? loop : 2 - loop;
+        const p = along * 0.92;
         setTraveler(pointAlongPath(RECORDING_DEMO_PATH, p));
-        if (t < 1 && noiseRecordingRef.current) {
-          recordFrame.current = requestAnimationFrame(tick);
-        }
+        recordFrame.current = requestAnimationFrame(tick);
       };
       recordFrame.current = requestAnimationFrame(tick);
     },

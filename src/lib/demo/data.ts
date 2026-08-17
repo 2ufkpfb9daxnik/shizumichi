@@ -198,7 +198,7 @@ const QUIET_PATH: LatLng[] = [
   { lat: 35.697696, lng: 139.659859 },
 ];
 
-/** 録音デモ用の適当なルート（最短・バランス・静音とは別） */
+/** 録音デモ用の歩行パス（画面上には出さない） */
 export const RECORDING_DEMO_PATH: LatLng[] = [
   { lat: 35.694322, lng: 139.654932 },
   { lat: 35.694295, lng: 139.655120 },
