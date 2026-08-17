@@ -18,6 +18,7 @@ import {
   LIBRARY,
   MAP_CENTER,
   MAP_ZOOM,
+  RECORDING_DEMO_PATH,
   SENSORS,
 } from "@/lib/demo/data";
 
@@ -97,7 +98,8 @@ export default function MapView({
   demo,
   isNoiseRecording,
 }: Props) {
-  const showRoutes = phase !== "idle" && phase !== "searching" || isNoiseRecording;
+  const showRoutes = phase !== "idle" && phase !== "searching" && !isNoiseRecording;
+  const recordingPositions = RECORDING_DEMO_PATH.map((p) => [p.lat, p.lng] as [number, number]);
   const showTraveler =
     traveler &&
     (isNoiseRecording || phase === "navigate" || phase === "arrived");
@@ -154,6 +156,42 @@ export default function MapView({
             </Fragment>
           );
         })}
+
+      {isNoiseRecording && (
+        <>
+          <Polyline
+            pane="routeFront"
+            positions={recordingPositions}
+            pathOptions={{
+              color: "#ffffff",
+              weight: 12,
+              opacity: 1,
+              lineJoin: "round",
+              lineCap: "round",
+            }}
+          />
+          <Polyline
+            pane="routeFront"
+            positions={recordingPositions}
+            pathOptions={{
+              color: "#5b6ee1",
+              weight: 7,
+              opacity: 0.95,
+              dashArray: "10, 8",
+              lineJoin: "round",
+              lineCap: "round",
+            }}
+          />
+          <Marker
+            position={[
+              RECORDING_DEMO_PATH[Math.floor(RECORDING_DEMO_PATH.length * 0.4)].lat,
+              RECORDING_DEMO_PATH[Math.floor(RECORDING_DEMO_PATH.length * 0.4)].lng,
+            ]}
+            icon={routeLabelIcon("記録ルート", "#5b6ee1")}
+            interactive={false}
+          />
+        </>
+      )}
 
       <Marker position={[HOME.lat, HOME.lng]} icon={placeIcon("home")}>
         <Popup>{HOME.name}</Popup>

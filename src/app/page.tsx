@@ -12,6 +12,7 @@ import {
   MAP_CENTER,
   MAP_ZOOM,
   NAV_DURATION_MS,
+  RECORDING_DEMO_PATH,
   ROUTES,
   SAMPLE_NOTE,
   SEARCH_DELAY_MS,
@@ -55,7 +56,6 @@ export default function HomePage() {
   const navFrame = useRef<number | null>(null);
   const recordFrame = useRef<number | null>(null);
   const noiseRecordingRef = useRef(false);
-  const recordStartProgress = useRef(0);
 
   const selected = useMemo(() => getRoute(selectedId), [selectedId]);
 
@@ -115,28 +115,24 @@ export default function HomePage() {
         stopNav();
       }
 
-      const route = getRoute(selectedId);
-      const onPath = phase === "navigate" || phase === "arrived";
-      const startP = onPath ? progress : 0;
-      recordStartProgress.current = startP;
-      setTraveler(pointAlongPath(route.path, startP));
+      setTraveler(pointAlongPath(RECORDING_DEMO_PATH, 0));
 
       const started = performance.now();
       const duration = prefersReducedMotion() ? 8000 : 22000;
-      const targetP = Math.min(0.92, startP + 0.55);
+      const targetP = 0.92;
 
       const tick = (now: number) => {
         if (!noiseRecordingRef.current) return;
         const t = Math.min(1, (now - started) / duration);
-        const p = startP + (targetP - startP) * t;
-        setTraveler(pointAlongPath(route.path, p));
+        const p = targetP * t;
+        setTraveler(pointAlongPath(RECORDING_DEMO_PATH, p));
         if (t < 1 && noiseRecordingRef.current) {
           recordFrame.current = requestAnimationFrame(tick);
         }
       };
       recordFrame.current = requestAnimationFrame(tick);
     },
-    [phase, progress, selectedId, stopNav, stopRecordingAnim]
+    [phase, stopNav, stopRecordingAnim]
   );
 
   const pendingRoute = useRef<RouteId>("quiet");
