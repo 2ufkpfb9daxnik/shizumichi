@@ -18,6 +18,123 @@
 
 バックエンド、経路探索API、位置情報、マイクは使いません。
 
+## システム構成図
+
+提案検証用プロトタイプの構成です。経路探索API・騒音API・バックエンドは使っていません。
+
+### 現状（デモ）
+
+```mermaid
+flowchart TB
+  subgraph Client["ブラウザ / PWA"]
+    UI["UI<br/>AppHeader / SidePanel / FutureModal"]
+    Map["地図<br/>Leaflet + react-leaflet"]
+    PWA["Service Worker<br/>sw.js + manifest.json"]
+    Demo["デモデータ<br/>src/lib/demo/data.ts"]
+  end
+
+  subgraph Host["GitHub Pages"]
+    Static["静的エクスポート<br/>docs/（main ブランチ）"]
+  end
+
+  subgraph External["外部（表示のみ）"]
+    OSM["OpenStreetMap タイル"]
+  end
+
+  User((利用者)) --> UI
+  UI --> Map
+  UI --> Demo
+  Map --> Demo
+  Map --> OSM
+  Client --> Static
+  PWA -.->|本番のみ登録| Static
+```
+
+### アプリ内部（フロント）
+
+```mermaid
+flowchart LR
+  Page["page.tsx<br/>状態管理・フェーズ制御"]
+  Header["AppHeader"]
+  Side["SidePanel"]
+  Future["FutureModal"]
+  MapView["MapView"]
+  Data["demo/data.ts<br/>経路・センサ・スコア"]
+  Geo["geo.ts<br/>距離・進捗計算"]
+
+  Page --> Header
+  Page --> Side
+  Page --> Future
+  Page --> MapView
+  Page --> Data
+  Page --> Geo
+  MapView --> Data
+  Side --> Data
+```
+
+### 画面フェーズ
+
+```mermaid
+stateDiagram-v2
+  [*] --> idle: 起動
+  idle --> searching: 検索
+  searching --> compare: 3経路表示
+  compare --> navigate: 案内開始
+  navigate --> arrived: 到着
+  arrived --> compare: 経路比較へ戻る
+  idle --> [*]: リセット
+  compare --> idle: リセット
+  navigate --> idle: リセット
+  arrived --> idle: リセット
+```
+
+### 公開フロー（Actions なし）
+
+```mermaid
+flowchart LR
+  Dev["開発<br/>npm run dev"]
+  Build["npm run build:pages<br/>GITHUB_PAGES=true"]
+  Out["out/"]
+  Docs["docs/"]
+  GH["GitHub<br/>main ブランチ"]
+  Pages["GitHub Pages<br/>Folder: /docs"]
+
+  Dev --> Build
+  Build --> Out --> Docs --> GH --> Pages
+```
+
+### 将来像（参考）
+
+本格化するときのイメージです。現状のコードには含まれません。
+
+```mermaid
+flowchart TB
+  subgraph Client["クライアント"]
+    App["しずみち UI"]
+  end
+
+  subgraph Backend["バックエンド（将来）"]
+    API["経路 API"]
+    Router["重み付き最短路<br/>Dijkstra / A* 等"]
+    Cost["コスト計算<br/>時間 + 騒音負荷"]
+  end
+
+  subgraph Data["データ源（将来）"]
+    Road["道路グラフ<br/>OpenStreetMap"]
+    Traffic["交通量<br/>道路交通センサス 等"]
+    Noise["騒音データ<br/>環境省・自治体・実測"]
+    UserNoise["利用者投稿 / 季節センサ"]
+  end
+
+  App --> API
+  API --> Router
+  Router --> Cost
+  Cost --> Road
+  Cost --> Traffic
+  Cost --> Noise
+  Cost --> UserNoise
+```
+
 ## セットアップ
 
 ```bash
