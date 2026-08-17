@@ -198,31 +198,25 @@ const QUIET_PATH: LatLng[] = [
   { lat: 35.697696, lng: 139.659859 },
 ];
 
-/** 録音デモ用の歩行パス（画面上には出さない） */
-export const RECORDING_DEMO_PATH: LatLng[] = [
-  { lat: 35.694322, lng: 139.654932 },
-  { lat: 35.694295, lng: 139.655120 },
-  { lat: 35.694268, lng: 139.655380 },
-  { lat: 35.694355, lng: 139.655560 },
-  { lat: 35.694498, lng: 139.655720 },
-  { lat: 35.694628, lng: 139.655920 },
-  { lat: 35.694742, lng: 139.656140 },
-  { lat: 35.694818, lng: 139.656380 },
-  { lat: 35.694792, lng: 139.656620 },
-  { lat: 35.694665, lng: 139.656860 },
-  { lat: 35.694548, lng: 139.657100 },
-  { lat: 35.694472, lng: 139.657340 },
-  { lat: 35.694418, lng: 139.657580 },
-  { lat: 35.694455, lng: 139.657820 },
-  { lat: 35.694588, lng: 139.657980 },
-  { lat: 35.694738, lng: 139.658040 },
-  { lat: 35.694892, lng: 139.657880 },
-  { lat: 35.695028, lng: 139.657640 },
-  { lat: 35.695168, lng: 139.657420 },
-  { lat: 35.695298, lng: 139.657200 },
-  { lat: 35.695420, lng: 139.656980 },
-  { lat: 35.695510, lng: 139.656720 },
-];
+function stitchLatLngPaths(segments: LatLng[][]): LatLng[] {
+  const out: LatLng[] = [];
+  for (const segment of segments) {
+    for (const point of segment) {
+      const last = out[out.length - 1];
+      if (!last || last.lat !== point.lat || last.lng !== point.lng) {
+        out.push(point);
+      }
+    }
+  }
+  return out;
+}
+
+/** 録音デモ用の歩行パス（画面上には出さない・住宅街の実在道路に沿う） */
+export const RECORDING_DEMO_PATH: LatLng[] = stitchLatLngPaths([
+  QUIET_PATH.slice(0, 19),
+  QUIET_PATH.slice(7, 19).reverse(),
+  QUIET_PATH.slice(4, 13),
+]);
 
 export const ROUTES: DemoRoute[] = [
   {
